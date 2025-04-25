@@ -1,0 +1,51 @@
+import customtkinter as ctk
+from CTkListbox import *
+
+ctk.set_appearance_mode("System")
+ctk.set_default_color_theme("blue")
+
+class ToDoApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("To-Do List Application")
+        self.geometry("460x500")
+    
+        self.create_widgets()
+    
+    def create_widgets(self):
+        self.button_frame = ctk.CTkFrame(self)
+        self.button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='n')
+
+        self.task_list = CTkListbox(self, width=250, height=450)
+        self.task_list.grid(column=1, row=0, columnspan=2, rowspan=2, padx=10, pady=10, sticky='n')
+
+        self.add_task_button = ctk.CTkButton(self.button_frame, text="Add Task", command=self.add_task)
+        self.add_task_button.grid(row=1, column=0, pady=5,sticky='n')
+
+        self.remove_task_button = ctk.CTkButton(self.button_frame, text="Remove Task")
+        self.remove_task_button.grid(row=2, column=0,pady=5, sticky='n')
+        
+    def add_task(self):
+        task_window = ctk.CTkToplevel(self)
+        task_window.title("Add a Task")
+        task_window.geometry("400x150")
+
+        task_window.grid_columnconfigure(0, weight=1)
+
+        self.text_frame = ctk.CTkFrame(task_window)
+        self.text_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+
+        self.text_frame.grid_columnconfigure(1, weight=1)
+
+        self.task_name = ctk.CTkLabel(self.text_frame, text="Task name: ")
+        self.task_name.grid(row=1, column=0, pady=5, padx=5, sticky='e')
+
+        self.task_name_textbox = ctk.CTkEntry(self.text_frame)
+        self.task_name_textbox.grid(row=1, column=1, pady=5, padx=5, sticky='ew')
+
+        self.task_status = ctk.CTkLabel(self.text_frame, text="Task status: ")
+        self.task_status.grid(row=2, column=0, pady=5, padx=5, sticky='n')
+
+if __name__ == "__main__":
+    root = ToDoApp()
+    root.mainloop()
