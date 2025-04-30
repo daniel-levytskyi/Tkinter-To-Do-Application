@@ -17,6 +17,12 @@ class ToDoApp(ctk.CTk):
         selection = self.task_list.get()
         if selection:
             self.task_list.delete(self.task_list.curselection())
+
+    def edit_task(self):
+        index = self.task_list.curselection()
+        if index is not None:
+            task_text = self.task_list.get(index)
+            EditTaskWindow(self, task_index=index, task_text=task_text)
         
     def create_widgets(self):
         self.button_frame = ctk.CTkFrame(self)
@@ -28,24 +34,90 @@ class ToDoApp(ctk.CTk):
         self.add_task_button = ctk.CTkButton(self.button_frame, text="Add Task", command=self.add_task)
         self.add_task_button.grid(row=1, column=0, pady=5,sticky='n')
 
+        self.edit_task_button = ctk.CTkButton(self.button_frame, text="Edit Task", command=self.edit_task)
+        self.edit_task_button.grid(row=2, column=0, pady=5, sticky='n')
+
         self.remove_task_button = ctk.CTkButton(self.button_frame, text="Remove Task", command=self.delete_task)
-        self.remove_task_button.grid(row=2, column=0,pady=5, sticky='n')
-    
+        self.remove_task_button.grid(row=3, column=0,pady=5, sticky='n')
+
+        self.exit_button = ctk.CTkButton(self.button_frame, text="Exit", command=self.destroy)
+        self.exit_button.grid(row=4, pady=5, sticky='s')
+
     def add_task(self):
         AddTaskWindow(self)
+
+class EditTaskWindow:
+    def __init__(self, parent, task_index=None, task_text=None):   
+        self.parent = parent
+        self.task_index = task_index
+
+        def task_to_list():
+            task_name = self.task_name_textbox.get()
+            progress_status = self.task_status_choice.get()
+            new_text = f"{task_name} - {progress_status}"
+            if task_name:
+                if task_index is not None:
+                    self.parent.task_list.delete(self.task_index)
+                    self.parent.task_list.insert(self.task_index, new_text)
+                else:
+                    self.parent.task_list.insert(END, new_text)
+                self.task_window.destroy()
+
+        self.task_window = ctk.CTkToplevel(parent)
+        self.task_window.title("Edit Task")
+        self.task_window.geometry("400x155")
+
+        self.task_window.grid_columnconfigure(0, weight=1)
+
+        self.text_frame = ctk.CTkFrame(self.task_window)
+        self.text_frame.grid(row=0, column=0, padx=10, pady=10, sticky='nsew')
+
+        self.text_frame.grid_columnconfigure(1, weight=1)
+
+        self.task_text = ctk.CTkLabel(self.text_frame, text="Task name: ")
+        self.task_text.grid(row=1, column=0, pady=5, padx=5, sticky='e')
+
+        self.task_name_textbox = ctk.CTkEntry(self.text_frame)
+        self.task_name_textbox.grid(row=1, column=1, pady=5, padx=5, sticky='ew')
+
+        self.task_status_text = ctk.CTkLabel(self.text_frame, text="Task status: ")
+        self.task_status_text.grid(row=2, column=0, pady=5, padx=5, sticky='n')
+
+        theme_blue = ctk.ThemeManager.theme["CTkButton"]["fg_color"] 
+
+        self.task_status_choice = ctk.CTkOptionMenu(self.text_frame,values=["Not Started", "In Progress", "Completed"],fg_color="white",text_color="black", dropdown_text_color="black",button_color=theme_blue)
+        self.task_status_choice.grid(row=2, column=1, pady=5, padx=5, sticky='ew')
+
+        if task_text:
+            if " - " in task_text:
+                name, status = task_text.split(" - ", 1)
+                self.task_name_textbox.insert(0, name)
+                self.task_status_choice.set(status)
+
+
+        self.button_frame = ctk.CTkFrame(self.task_window, fg_color="transparent")
+        self.button_frame.grid(row=2, column=0, padx=10, pady=10, sticky='nsew')
+        self.button_frame.grid_columnconfigure(0, weight=1)
+        self.button_frame.grid_columnconfigure(1, weight=1)
+        self.button_frame.grid_columnconfigure(2, weight=1)
+        self.button_frame.grid_columnconfigure(3, weight=1)
+
+        self.task_complete_button = ctk.CTkButton(self.button_frame, text="Save Changes", command=task_to_list)
+        self.task_complete_button.grid(row=0, column=1, pady=1, padx=1, sticky='s')
+
+        self.task_cancel_button = ctk.CTkButton(self.button_frame, text="Cancel", command=self.task_window.destroy)
+        self.task_cancel_button.grid(row=0, column=2, pady=1, padx=1, sticky='s')
 
 class AddTaskWindow:
     def __init__(self, parent):   
         self.parent = parent
 
-        def optionmenu_callback(choice):
-            print("optionmenu dropdown clicked:", choice)
-
         def task_to_list():
             task_name = self.task_name_textbox.get()
             progress_status = self.task_status_choice.get()
+            new_text = f"{task_name} - {progress_status}"
             if task_name:
-                self.parent.task_list.insert(END, f"{task_name} - {progress_status}")
+                self.parent.task_list.insert(END, new_text)
                 self.task_window.destroy()
 
         self.task_window = ctk.CTkToplevel(parent)
@@ -70,7 +142,7 @@ class AddTaskWindow:
 
         theme_blue = ctk.ThemeManager.theme["CTkButton"]["fg_color"] 
 
-        self.task_status_choice = ctk.CTkOptionMenu(self.text_frame,values=["Not Started", "In Progress", "Completed"],command=optionmenu_callback,fg_color="white",text_color="black", dropdown_text_color="black",button_color=theme_blue)
+        self.task_status_choice = ctk.CTkOptionMenu(self.text_frame,values=["Not Started", "In Progress", "Completed"],fg_color="white",text_color="black", dropdown_text_color="black",button_color=theme_blue)
         self.task_status_choice.grid(row=2, column=1, pady=5, padx=5, sticky='ew')
 
         self.button_frame = ctk.CTkFrame(self.task_window, fg_color="transparent")
