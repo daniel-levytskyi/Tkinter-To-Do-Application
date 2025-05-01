@@ -24,6 +24,22 @@ class ToDoApp(ctk.CTk):
             task_text = self.task_list.get(index)
             EditTaskWindow(self, task_index=index, task_text=task_text)
         
+    def save_tasks_to_file(self):
+        with open("/home/levytskyi/Documents/Python/Tkinter/CustomTkinter/cTK Task Manager/tasks.txt","w") as file:
+            for i in range(self.task_list.size()):
+                tasks = self.task_list.get(i)
+                file.write(tasks + "\n")
+            self.save_text.configure(text="Tasks have been saved.")
+
+    def load_tasks_from_file(self):
+        try:
+            with open("/home/levytskyi/Documents/Python/Tkinter/CustomTkinter/cTK Task Manager/tasks.txt", "r") as file:
+                for line in file:
+                    self.task_list.insert(END, line.strip())
+        except FileNotFoundError:
+            pass
+
+
     def create_widgets(self):
         self.button_frame = ctk.CTkFrame(self)
         self.button_frame.grid(row=0, column=0, padx=10, pady=10, sticky='n')
@@ -40,9 +56,17 @@ class ToDoApp(ctk.CTk):
         self.remove_task_button = ctk.CTkButton(self.button_frame, text="Remove Task", command=self.delete_task)
         self.remove_task_button.grid(row=3, column=0,pady=5, sticky='n')
 
-        self.exit_button = ctk.CTkButton(self.button_frame, text="Exit", command=self.destroy)
-        self.exit_button.grid(row=4, pady=5, sticky='s')
+        self.save_tasks_button = ctk.CTkButton(self.button_frame, text="Save Tasks", command=self.save_tasks_to_file)
+        self.save_tasks_button.grid(row=4, pady=5, sticky='s')
 
+        self.exit_button = ctk.CTkButton(self.button_frame, text="Exit", command=self.destroy)
+        self.exit_button.grid(row=5, pady=5, sticky='s')
+
+        self.save_text = ctk.CTkLabel(self.button_frame, text="")
+        self.save_text.grid(row=6, pady=5, sticky='n')
+
+        self.load_tasks_from_file()
+        
     def add_task(self):
         AddTaskWindow(self)
 
